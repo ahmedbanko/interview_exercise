@@ -30,6 +30,7 @@ import { LastMessageInput, LastMessageOutput } from './models/lastMessage.dto';
 import { MessageData } from '../message/message.data';
 import { ChatMessage } from '../message/models/message.entity';
 
+
 export interface IConversationData {
   addMember(
     conversationId: string,

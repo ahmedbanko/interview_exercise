@@ -13,6 +13,7 @@ import {
   ResolveMessageDto,
   ReactionDto,
   PollOptionDto,
+  TagDto
 } from './models/message.dto';
 import { MessageData } from './message.data';
 import { IAuthenticatedUser } from '../authentication/jwt.strategy';
@@ -29,6 +30,7 @@ import {
   UnresolveMessageEvent,
   ReactedMessageEvent,
   UnReactedMessageEvent,
+  TaggedMessageEvent,
 } from '../conversation/conversation-channel.socket';
 import { UserService } from '../user/user.service';
 import { ConversationData } from '../conversation/conversation.data';
@@ -564,6 +566,35 @@ export class MessageLogic implements IMessageLogic {
     this.conversationChannel.send(
       messageEvent,
       reaction.conversationId.toHexString(),
+    );
+
+    return message;
+  }
+
+  async addTagToMessage(
+    tag: TagDto,
+    authenticatedUser: IAuthenticatedUser,
+  ) {
+    await this.throwForbiddenErrorIfNotAuthorized(
+      authenticatedUser,
+      tag.messageId,
+      Action.readConversation,
+    );
+
+    const message = await this.messageData.addTag(
+      tag.tag,
+      authenticatedUser.userId,
+      tag.messageId,
+    );
+
+    const messageEvent = new TaggedMessageEvent({
+      userId: authenticatedUser.userId,
+      messageId: tag.messageId,
+      tag: tag.tag,
+    });
+    this.conversationChannel.send(
+      messageEvent,
+      tag.conversationId.toHexString(),
     );
 
     return message;

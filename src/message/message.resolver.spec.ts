@@ -11,6 +11,7 @@ import {
   ResolveMessageDto,
   LikeMessageDto,
   ReactionDto,
+  TagDto,
   PollDto,
 } from './models/message.dto';
 import { ObjectID } from 'mongodb';
@@ -185,6 +186,13 @@ describe('MessageResolver', () => {
 
     removeReactionFromMessage(
       reactionDto: ReactionDto,
+      authenticatedUser?: IAuthenticatedUser,
+    ): Promise<ChatMessage> {
+      return Promise.resolve(chatMessage);
+    }
+
+    addTagToMessage(
+      tagDto: TagDto,
       authenticatedUser?: IAuthenticatedUser,
     ): Promise<ChatMessage> {
       return Promise.resolve(chatMessage);

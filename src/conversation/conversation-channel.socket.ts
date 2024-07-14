@@ -7,6 +7,7 @@ import {
 import { SocketChatMessage } from '../message/models/message.entity';
 import { ObjectId } from 'mongodb';
 import { User } from '../user/models/user.model';
+import { TagType } from './models/CreateChatConversation.dto';
 
 export class SendMessageEvent implements BaseEventType {
   public name = 'send-message';
@@ -45,6 +46,17 @@ export class UnReactedMessageEvent implements BaseEventType {
       messageId: ObjectId;
       reaction: string;
       reactionUnicode: string;
+    },
+  ) {}
+}
+
+export class TaggedMessageEvent implements BaseEventType {
+  public name = 'tagged-message';
+  constructor(
+    public message: {
+      userId: ObjectId;
+      messageId: ObjectId;
+      tag: TagType;
     },
   ) {}
 }

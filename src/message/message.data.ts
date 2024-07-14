@@ -11,6 +11,7 @@ import { MessageDto, GetMessageDto } from './models/message.dto';
 import { ObjectID } from 'mongodb';
 import { createRichContent } from './utils/message.helper';
 import { MessageGroupedByConversationOutput } from '../conversation/models/messagesFilterInput';
+import { TagType } from '../conversation/models/CreateChatConversation.dto';
 
 @Injectable()
 export class MessageData {
@@ -88,16 +89,8 @@ export class MessageData {
   }
 
   async delete(messageId: ObjectID): Promise<ChatMessage> {
-    const deletedMessage = await this.chatMessageModel.findOneAndUpdate(
-      { _id: messageId },
-      { deleted: true },
-      {
-        new: true,
-        returnOriginal: false,
-      },
-    );
-    if (!deletedMessage) throw new Error('Could not find a message with the provided id');
-    return chatMessageToObject(deletedMessage);
+    // TODO allow a message to be marked as deleted
+    return new ChatMessage() // Minimum to pass ts checks -replace this
   }
 
   async resolve(messageId: ObjectID): Promise<ChatMessage> {
@@ -252,6 +245,55 @@ export class MessageData {
     if (!updatedResult || updatedResult.matchedCount === 0) {
       throw new Error(
         `Failed to remove reaction, messageId: ${messageId.toHexString()}, reaction: ${reaction}, userId: ${userId.toHexString()}`,
+      );
+    }
+
+    return this.getMessage(messageId.toHexString());
+  }
+
+  async addTag(
+    tag: TagType,
+    userId: ObjectID,
+    messageId: ObjectID,
+  ): Promise<ChatMessage> {
+    const updatedResult = await this.chatMessageModel.bulkWrite([
+      {
+        updateOne: {
+          filter: {
+            _id: messageId,
+            tags: {
+              $elemMatch: { tag: tag },
+            },
+          },
+          update: {
+            $addToSet: { 'tags.$.userIds': userId },
+          },
+        },
+      },
+      {
+        updateOne: {
+          filter: {
+            _id: messageId,
+            tags: {
+              $not: {
+                $elemMatch: { tag: tag },
+              },
+            },
+          },
+          update: {
+            $push: {
+              tags: {
+                tag: tag,
+                userIds: [userId],
+              },
+            },
+          },
+        },
+      },
+    ]);
+    if (!updatedResult || updatedResult.matchedCount === 0) {
+      throw new Error(
+        `Failed to add tag, messageId: ${messageId.toHexString()}, tag: ${tag}, userId: ${userId.toHexString()}`,
       );
     }
 

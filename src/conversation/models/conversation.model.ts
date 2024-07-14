@@ -1,10 +1,10 @@
-import { Tag } from './CreateChatConversation.dto';
 import { ObjectID } from 'mongodb';
 import { Document } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { Permission } from './Permission.dto';
 import { Product, ContextSchema } from './ContextSchema.dto';
+import { Tag } from './CreateChatConversation.dto';
 
 @Schema({ collection: 'chatconverationmodels' }) // keeping the collection's old name in the DB
 export class ChatConversationModel {

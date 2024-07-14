@@ -59,7 +59,6 @@ import {
 } from '../conversation/models/lastMessage.dto';
 import { Permission } from '../conversation/models/Permission.dto';
 import { LastReadInput } from '../conversation/models/LastReadInput.dto';
-import { Tag } from '../conversation/models/CreateChatConversation.dto';
 
 const UNAUTHORISED_USER = new ObjectId('321b1a570ff321b1a570ff01');
 const validUser: IAuthenticatedUser = {
@@ -401,6 +400,7 @@ describe('MessageLogic', () => {
         this.getMockMessage(messageId.toHexString(), userId.toHexString()),
       );
     }
+    
 
     addVote(messageId: ObjectID, userId: ObjectID, option: string) {
       return Promise.resolve(

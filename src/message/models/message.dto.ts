@@ -6,6 +6,7 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { ObjectID } from 'mongodb';
+import { TagType } from '../../conversation/models/CreateChatConversation.dto';
 
 export enum GifType {
   Gif = 'gif',
@@ -170,6 +171,18 @@ export class ReactionDto {
 
   @Field(() => String)
   reactionUnicode: string;
+
+  @Field(() => ObjectID)
+  messageId: ObjectID;
+
+  @Field(() => ObjectID)
+  conversationId: ObjectID;
+}
+
+@InputType()
+export class TagDto {
+  @Field(() => TagType)
+  tag: TagType;
 
   @Field(() => ObjectID)
   messageId: ObjectID;

@@ -3,6 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectID } from 'mongodb';
 import { AttachmentType, GifType } from './message.dto';
 import { Field, ObjectType } from '@nestjs/graphql';
+import { TagType } from '../../conversation/models/CreateChatConversation.dto';
 
 @Schema()
 export class ReplyMessage {
@@ -116,6 +117,25 @@ export class Reaction {
 }
 
 @Schema()
+@ObjectType()
+export class Tag {
+  @Field(() => String, { nullable: false })
+  @Prop({ type: String, required: true })
+  id: string;
+
+  @Field(() => TagType, { nullable: false })
+  @Prop({ type: String, required: true })
+  type: TagType;
+
+  @Field(() => [String], { nullable: false })
+  @Prop({ type: [String], default: [] })
+  userIds: string[];
+}
+
+export type TagDocument = Tag & Document;
+export const TagSchema = SchemaFactory.createForClass(Tag);
+
+@Schema()
 export class ChatMessageModel {
   id: ObjectID;
 
@@ -154,6 +174,8 @@ export class ChatMessageModel {
   })
   reactions?: Reaction[];
 
+  @Prop({ type: [TagSchema], default: [] })
+  tags?: Tag[];
   /**
    * All the properties below are virtual properties
    * @url https://mongoosejs.com/docs/tutorials/virtuals.html
@@ -200,7 +222,8 @@ export function chatMessageToObject(
 
   return {
     ...parsed,
-    id: new ObjectID(parsed.id),
+    id: new ObjectID(parsed.id), // Assuming parsed.id is already a string or ObjectID
     text: maskDeletedMessageText(parsed.deleted, parsed.text),
+    tags: parsed.tags ? parsed.tags.map((tag) => ({ ...tag })) : [],
   };
 }
